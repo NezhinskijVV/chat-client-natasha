@@ -20,33 +20,32 @@ public class ClientImpl implements Client {
         if (socket.isConnected()) {
             System.out.println("I'm connected");
 
-            BufferedReader consoleReader
-                    = new BufferedReader(new InputStreamReader(System.in));
+            MessageInputService consoleReader
+                    = new MessageInputServiceImpl(System.in);
+
+            new Thread(new SocketRunnable(socket)).start();
+
+            System.out.println("Введи логин");
+            String login = consoleReader.getMessage();
+            System.out.println("Введи пароль");
+            String password = consoleReader.getMessage();
+
             PrintWriter serverWriter = new PrintWriter(socket.getOutputStream());
-
-            new Thread(() -> {
-                try {
-
-                    BufferedReader serverReader =
-                            new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-                    String serverMessage;
-                    while ((serverMessage = serverReader.readLine()) != null){
-                        System.out.println(serverMessage);
-                    }
-
-                } catch (IOException exception) {
-                    exception.printStackTrace();
-                }
-            }).start();
-
+            serverWriter.println("!auth!" + login + ":" + password);
+            serverWriter.flush();
 
             while (true) {
-                System.out.println("Введи сообщение");
-                serverWriter.println(consoleReader.readLine());
+                serverWriter.println(consoleReader.getMessage());
                 serverWriter.flush();
             }
-
         }
     }
 }
+//имя + успешно зарегистрирован
+//InputService в отдельный класс
+//доменная сущность пользователь (имя и пароль)
+//!!Вопросы по прощедшему материалу!!
+//+ prototype
+
+
+//след. группа паттернов (структурные) *
